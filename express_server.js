@@ -10,6 +10,8 @@ const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+// console.log(urlDatabase["b2xVn2"]);
+
 
 function generateRandomString() {
   let random = Math.random().toString(36).substring(2, 8);
@@ -45,6 +47,15 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+app.get("/u/:id", (req, res) => {
+  //Capture id entered into url after /u/
+  console.log(req.params.id);
+  //Match new key in urlDatabase to longURL
+  const longURL = urlDatabase[req.params.id];
+  //Redirect back to longURL
+  res.redirect(longURL);
+});
+
 //POST REQUESTS
 
 app.post("/urls", (req, res) => {
@@ -53,7 +64,6 @@ app.post("/urls", (req, res) => {
   const longURL = req.body.longURL;
   //Assign random id to new longURL
   const id = generateRandomString();
-  console.log('id', id);
   //Add new random id and new longURL
   urlDatabase[id] = longURL;
   res.redirect(`/urls/${id}`);
