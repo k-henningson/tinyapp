@@ -71,7 +71,9 @@ app.post("/urls", (req, res) => {
 
 app.post("/urls/:id/delete", (req, res) => {
   console.log(req.params);
+  //Capture id from object
   const id = req.params.id;
+  //Delete url based off of id
   delete urlDatabase[id];
   res.redirect(`/urls`);
 });
