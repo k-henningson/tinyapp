@@ -13,7 +13,8 @@ const urlDatabase = {
 
 function generateRandomString() {
   let random = Math.random().toString(36).substring(2, 8);
-  console.log('random', random);
+  // console.log('random', random);
+  return random;
 };
 
 //GET REQUESTS
@@ -48,13 +49,14 @@ app.get("/urls/:id", (req, res) => {
 
 app.post("/urls", (req, res) => {
   console.log(req.body);
-  res.send("Ok");
-  //Capture new longURL
+  //Capture new longURL from req.body
   const longURL = req.body.longURL;
   //Assign random id to new longURL
   const id = generateRandomString();
+  console.log('id', id);
   //Add new random id and new longURL
   urlDatabase[id] = longURL;
+  res.redirect(`/urls/${id}`);
 });
 
 app.listen(PORT, () => {
