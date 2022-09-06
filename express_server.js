@@ -69,6 +69,15 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${id}`);
 });
 
+app.post("/urls/:id", (req, res) => {
+  console.log(req.params);
+  console.log(req.body);
+  const shortURL = req.params.id;
+  const longURL = req.body.longURL;
+  urlDatabase[shortURL] = longURL;
+  res.redirect("/urls");
+});
+
 app.post("/urls/:id/delete", (req, res) => {
   console.log(req.params);
   //Capture id from object
