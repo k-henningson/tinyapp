@@ -49,7 +49,7 @@ app.get("/urls/:id", (req, res) => {
 
 app.get("/u/:id", (req, res) => {
   //Capture id entered into url after /u/
-  console.log(req.params.id);
+  //console.log(req.params.id);
   //Match new key in urlDatabase to longURL
   const longURL = urlDatabase[req.params.id];
   //Redirect back to longURL
@@ -59,7 +59,7 @@ app.get("/u/:id", (req, res) => {
 //POST REQUESTS
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);
+  //console.log(req.body);
   //Capture new longURL from req.body
   const longURL = req.body.longURL;
   //Assign random id to new longURL
@@ -67,6 +67,13 @@ app.post("/urls", (req, res) => {
   //Add new random id and new longURL
   urlDatabase[id] = longURL;
   res.redirect(`/urls/${id}`);
+});
+
+app.post("/urls/:id/delete", (req, res) => {
+  console.log(req.params);
+  const id = req.params.id;
+  delete urlDatabase[id];
+  res.redirect(`/urls`);
 });
 
 app.listen(PORT, () => {
