@@ -81,10 +81,16 @@ app.get("/u/:id", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
+  if (users[req.cookies.user_id]) {
+    return res.redirect("/urls");
+  }
   res.render("registration", {user: null});
 });
 
 app.get("/login", (req, res) => {
+  if (users[req.cookies.user_id]) {
+    return res.redirect("/urls");
+  }
   res.render("login", {user: null});
 });
 
