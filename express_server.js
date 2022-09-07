@@ -62,6 +62,9 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
+  if (!users[req.cookies.user_id]) {
+    return res.redirect("/login");
+  }
   const templateVars = { user: users[req.cookies["user_id"]]};
   res.render("urls_new", templateVars);
 });
@@ -72,6 +75,9 @@ app.get("/urls/:id", (req, res) => {
 });
 
 app.get("/u/:id", (req, res) => {
+  if (!urlDatabase[req.params.id]) {
+    return res.send(`<h3>ID does not exist</h3>`);
+  }
   //Capture id entered into url after /u/
   //console.log(req.params.id);
   //Match new key in urlDatabase to longURL
@@ -97,6 +103,9 @@ app.get("/login", (req, res) => {
 //POST REQUESTS
 
 app.post("/urls", (req, res) => {
+  if (!users[req.cookies.user_id]) {
+    return res.send(`<h3>You must login first!</h3>`);
+  }
   //console.log(req.body);
   //Capture new longURL from req.body
   const longURL = req.body.longURL;
