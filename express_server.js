@@ -33,6 +33,15 @@ function generateRandomString() {
   return random;
 };
 
+const getUserByEmail = function (email) {
+  for (let user_id in users) {
+    if (users[user_id].email === email) {
+      return users[user_id];
+    }
+  }
+  return null;
+};
+
 //GET REQUESTS
 
 app.get("/", (req, res) => {
@@ -122,11 +131,18 @@ app.post("/logout", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  console.log(req.body);
+  //console.log(req.body);
   //Generate random user ID
   const user_id = generateRandomString();
   const email = req.body.email;
   const password = req.body.password;
+  if (email === '' && password === '') {
+    return res.status(400).send('No email or password entered');
+  };
+  let currentUser = getUserByEmail(email)
+  if (currentUser) {
+    return res.status(400).send('User already exists');
+  };
   //Add new user object to global user object
   users[user_id] = {
     id: user_id,
@@ -143,3 +159,5 @@ app.post("/register", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
+
