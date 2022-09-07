@@ -81,14 +81,12 @@ app.get("/u/:id", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  const templateVars = { user: users[req.cookies["user_id"]]};
-  res.render("registration", templateVars);
+  res.render("registration", {user: null});
 });
 
-// app.get("/login", (req, res) => {
-
-//   res.render("login", templateVars);
-// });
+app.get("/login", (req, res) => {
+  res.render("login", {user: null});
+});
 
 //POST REQUESTS
 
@@ -121,12 +119,12 @@ app.post("/urls/:id/delete", (req, res) => {
 app.post("/login", (req, res) => {
   //Set cookie named username 
   //res.cookie(name, value)
-  res.cookie('username', req.body.username);
+  res.cookie('user_id', req.body.user);
   res.redirect(`/urls`);
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie('username');
+  res.clearCookie('user_id');
   res.redirect(`/urls`);
 });
 
