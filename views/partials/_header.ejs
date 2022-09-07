@@ -19,9 +19,9 @@
       </div>
     </div>
     <div>
-      <% if(username){ %>
+      <% if(user){ %>
       <span style="display:flex; flex-direction: row;">
-      <p>Logged in as: <%= username %> &nbsp;</p>
+      <p>Logged in as: <%= user.email %> &nbsp;</p>
       <form method="POST" action="/logout">
         <button type="submit">Logout</button>
       </form>
