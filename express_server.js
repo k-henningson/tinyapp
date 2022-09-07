@@ -12,7 +12,19 @@ const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
-// console.log(urlDatabase["b2xVn2"]);
+
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
+};
 
 
 function generateRandomString() {
@@ -64,6 +76,11 @@ app.get("/register", (req, res) => {
   res.render("registration", templateVars);
 });
 
+// app.get("/login", (req, res) => {
+
+//   res.render("login", templateVars);
+// });
+
 //POST REQUESTS
 
 app.post("/urls", (req, res) => {
@@ -78,8 +95,6 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/:id", (req, res) => {
-  console.log(req.params);
-  console.log(req.body);
   const shortURL = req.params.id;
   const longURL = req.body.longURL;
   urlDatabase[shortURL] = longURL;
@@ -87,7 +102,6 @@ app.post("/urls/:id", (req, res) => {
 });
 
 app.post("/urls/:id/delete", (req, res) => {
-  console.log(req.params);
   //Capture id from object
   const id = req.params.id;
   //Delete url based off of id
@@ -96,7 +110,6 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  //console.log(req.body);
   //Set cookie named username 
   //res.cookie(name, value)
   res.cookie('username', req.body.username);
@@ -105,6 +118,25 @@ app.post("/login", (req, res) => {
 
 app.post("/logout", (req, res) => {
   res.clearCookie('username');
+  res.redirect(`/urls`);
+});
+
+app.post("/register", (req, res) => {
+  console.log(req.body);
+  //Generate random user ID
+  const user_id = generateRandomString();
+  const email = req.body.email;
+  const password = req.body.password;
+  //Add new user object to global user object
+  users[user_id] = {
+    id: user_id,
+    email: email,
+    password: password
+  };
+  //Set userID cookie name & value
+  res.cookie('user_id', user_id );
+  //Check if users object appended to
+  //console.log(users);
   res.redirect(`/urls`);
 });
 
