@@ -19,11 +19,19 @@
       </div>
     </div>
     <div>
-      <p><%= username %></p>
+      <% if(username){ %>
+      <span style="display:flex; flex-direction: row;">
+      <p>Logged in as: <%= username %> &nbsp;</p>
+      <form method="POST" action="/logout">
+        <button type="submit">Logout</button>
+      </form>
+     </span>
+      <% } else{ %>
       <form method="POST" action="/login">
-        <input type="text" name="username"></input>
+        <input type="text" placeholder="Username" name="username"></input>
         <button type="submit">Submit</button>
       </form>
+      <% } %>
     </div>
   </nav>
 </header>
