@@ -117,9 +117,17 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  //Set cookie named username 
+  const email = req.body.email;
+  const password = req.body.password;
+  let currentUser = getUserByEmail(email)
+  if (!currentUser) {
+    return res.status(403).send('User cannot be found');
+  } else if (currentUser.password !== password) {
+      return res.status(403).send('Password is not correct');
+    } 
+  //Set cookie named user_id
   //res.cookie(name, value)
-  res.cookie('user_id', req.body.user);
+  res.cookie('user_id', currentUser.id);
   res.redirect(`/urls`);
 });
 
