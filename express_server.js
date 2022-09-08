@@ -4,6 +4,7 @@ const express = require("express");
 const cookieSession = require('cookie-session')
 const { reduce } = require("lodash");
 const bcrypt = require("bcryptjs");
+const { getUserByEmail } = require("./helpers");
 const app = express();
 const PORT = 8080; // default port 8080
 
@@ -48,15 +49,6 @@ const users = {
 function generateRandomString() {
   let random = Math.random().toString(36).substring(2, 8);
   return random;
-};
-
-const getUserByEmail = function (email, database) {
-  for (let user in database) { 
-    if (database[user].email === email) {
-      return database[user];
-    }
-  }
-  return null;
 };
 
 const urlsForUser = function (urlDatabase, user_id) {
@@ -191,7 +183,7 @@ app.post("/urls/:id/delete", (req, res) => {
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  let currentUser = getUserByEmail(email, users)
+  let currentUser = getUserByEmail(email, users);
   if (!currentUser) {
     return res.status(403).send('User cannot be found');
   } else if (!bcrypt.compareSync(password, currentUser.password)) {
@@ -217,8 +209,7 @@ app.post("/register", (req, res) => {
   if (email === '' && password === '') {
     return res.status(400).send('No email or password entered');
   };
-  let currentUser = getUserByEmail(email, users)
-  console.log(currentUser);
+  let currentUser = getUserByEmail(email, users);
   if (currentUser) {
     return res.status(400).send('User already exists');
   };
