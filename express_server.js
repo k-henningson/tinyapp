@@ -50,10 +50,10 @@ function generateRandomString() {
   return random;
 };
 
-const getUserByEmail = function (email) {
-  for (let user_id in users) {
-    if (users[user_id].email === email) {
-      return users[user_id];
+const getUserByEmail = function (email, database) {
+  for (let user in database) { 
+    if (database[user].email === email) {
+      return database[user];
     }
   }
   return null;
@@ -67,7 +67,7 @@ const urlsForUser = function (urlDatabase, user_id) {
     }
   }
    return newObj;
-}
+};
 
 //ROUTES & ENDPOINTS
 
@@ -191,7 +191,7 @@ app.post("/urls/:id/delete", (req, res) => {
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  let currentUser = getUserByEmail(email)
+  let currentUser = getUserByEmail(email, users)
   if (!currentUser) {
     return res.status(403).send('User cannot be found');
   } else if (!bcrypt.compareSync(password, currentUser.password)) {
@@ -217,7 +217,8 @@ app.post("/register", (req, res) => {
   if (email === '' && password === '') {
     return res.status(400).send('No email or password entered');
   };
-  let currentUser = getUserByEmail(email)
+  let currentUser = getUserByEmail(email, users)
+  console.log(currentUser);
   if (currentUser) {
     return res.status(400).send('User already exists');
   };
