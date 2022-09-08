@@ -85,7 +85,7 @@ app.get("/urls", (req, res) => {
   };
   const user_urls = urlsForUser(urlDatabase, req.session.user_id);
   const templateVars = { urls: user_urls,  user: users[req.session["user_id"]]};
-  res.render("urls_index", templateVars);
+  return res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
@@ -93,7 +93,7 @@ app.get("/urls/new", (req, res) => {
     return res.redirect("/login");
   }
   const templateVars = { user: users[req.session["user_id"]]};
-  res.render("urls_new", templateVars);
+  return res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
@@ -104,7 +104,7 @@ app.get("/urls/:id", (req, res) => {
     return res.send(`<h3>You do not own this URL!</h3>`);
   };
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id].longURL, user: users[req.session["user_id"]]};
-  res.render("urls_show", templateVars);
+  return res.render("urls_show", templateVars);
 });
 
 app.get("/u/:id", (req, res) => {
@@ -122,14 +122,14 @@ app.get("/register", (req, res) => {
   if (users[req.session.user_id]) {
     return res.redirect("/urls");
   }
-  res.render("registration", {user: null});
+  return res.render("registration", {user: null});
 });
 
 app.get("/login", (req, res) => {
   if (users[req.session.user_id]) {
     return res.redirect("/urls");
   }
-  res.render("login", {user: null});
+  return res.render("login", {user: null});
 });
 
 //POST REQUESTS - CREATE
@@ -144,7 +144,7 @@ app.post("/urls", (req, res) => {
   const id = generateRandomString();
   //Add new random id and new longURL
   urlDatabase[id] = {longURL: longURL, userID: req.session.user_id};
-  res.redirect(`/urls/${id}`);
+  return res.redirect(`/urls/${id}`);
 });
 
 app.post("/urls/:id", (req, res) => {
@@ -160,7 +160,7 @@ app.post("/urls/:id", (req, res) => {
   const shortURL = req.params.id;
   const longURL = req.body.longURL;
   urlDatabase[shortURL] = {longURL: longURL, userID: req.session.user_id}
-  res.redirect("/urls");
+  return res.redirect("/urls");
 });
 
 app.post("/urls/:id/delete", (req, res) => {
@@ -177,7 +177,7 @@ app.post("/urls/:id/delete", (req, res) => {
   const id = req.params.id;
   //Delete url based off of id
   delete urlDatabase[id];
-  res.redirect(`/urls`);
+  return res.redirect(`/urls`);
 });
 
 app.post("/login", (req, res) => {
@@ -186,18 +186,19 @@ app.post("/login", (req, res) => {
   let currentUser = getUserByEmail(email, users);
   if (!currentUser) {
     return res.status(403).send('User cannot be found');
-  } else if (!bcrypt.compareSync(password, currentUser.password)) {
+  } 
+  if (!bcrypt.compareSync(password, currentUser.password)) {
       return res.status(403).send('Password is not correct');
     } 
   //Set cookie named user_id
   //res.cookie(name, value)
   req.session.user_id = currentUser.id;
-  res.redirect(`/urls`);
+  return res.redirect(`/urls`);
 });
 
 app.post("/logout", (req, res) => {
   req.session.user_id = null;
-  res.redirect(`/urls`);
+  return res.redirect(`/urls`);
 });
 
 app.post("/register", (req, res) => {
@@ -221,7 +222,7 @@ app.post("/register", (req, res) => {
   //Set userID cookie name & value
   req.session.user_id = user_id;
   //Check if users object appended to
-  res.redirect(`/urls`);
+  return res.redirect(`/urls`);
 });
 
 //LISTENER
