@@ -10,17 +10,10 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieSession({
   name: 'session',
-  keys: [/* secret keys */],
-
-  // Cookie Options
+  keys: ['cookie1fortinyApp', 'cookie2fortinyApp' ],
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
-// app.use(cookieParser());
 
-// const urlDatabase = {
-//   "b2xVn2": "http://www.lighthouselabs.ca",
-//   "9sm5xK": "http://www.google.com"
-// };
 
 const urlDatabase = {
   b6UTxQ: {
@@ -49,7 +42,6 @@ const users = {
 
 function generateRandomString() {
   let random = Math.random().toString(36).substring(2, 8);
-  // console.log('random', random);
   return random;
 };
 
@@ -64,13 +56,10 @@ const getUserByEmail = function (email) {
 
 const urlsForUser = function (urlDatabase, user_id) {
   let newObj = {};
-  console.log(user_id);
   for (let key in urlDatabase) {
     if (user_id === urlDatabase[key].userID) {
       newObj[key] = urlDatabase[key];
     }
-    console.log(key, urlDatabase[key]);
-    console.log(user_id === urlDatabase[key].userID)
   }
    return newObj;
 }
@@ -90,30 +79,30 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  if (!users[req.cookies.user_id]) {
+  if (!users[req.session.user_id]) {
     return res.send(`<h3>You must login first!</h3>`);
   };
-  const user_urls = urlsForUser(urlDatabase, req.cookies.user_id);
-  const templateVars = { urls: user_urls,  user: users[req.cookies["user_id"]]};
+  const user_urls = urlsForUser(urlDatabase, req.session.user_id);
+  const templateVars = { urls: user_urls,  user: users[req.session["user_id"]]};
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  if (!users[req.cookies.user_id]) {
+  if (!users[req.session.user_id]) {
     return res.redirect("/login");
   }
-  const templateVars = { user: users[req.cookies["user_id"]]};
+  const templateVars = { user: users[req.session["user_id"]]};
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
-  if (!users[req.cookies.user_id]) {
+  if (!users[req.session.user_id]) {
     return res.send(`<h3>You must login first!</h3>`);
   };
-  if (urlDatabase[req.params.id].userID !== req.cookies.user_id) {
+  if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     return res.send(`<h3>You do not own this URL!</h3>`);
   };
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id].longURL, user: users[req.cookies["user_id"]]};
+  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id].longURL, user: users[req.session["user_id"]]};
   res.render("urls_show", templateVars);
 });
 
@@ -122,7 +111,6 @@ app.get("/u/:id", (req, res) => {
     return res.send(`<h3>ID does not exist</h3>`);
   }
   //Capture id entered into url after /u/
-  //console.log(req.params.id);
   //Match new key in urlDatabase to longURL
   const longURL = urlDatabase[req.params.id].longURL;
   //Redirect back to longURL
@@ -130,14 +118,14 @@ app.get("/u/:id", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  if (users[req.cookies.user_id]) {
+  if (users[req.session.user_id]) {
     return res.redirect("/urls");
   }
   res.render("registration", {user: null});
 });
 
 app.get("/login", (req, res) => {
-  if (users[req.cookies.user_id]) {
+  if (users[req.session.user_id]) {
     return res.redirect("/urls");
   }
   res.render("login", {user: null});
@@ -146,16 +134,15 @@ app.get("/login", (req, res) => {
 //POST REQUESTS
 
 app.post("/urls", (req, res) => {
-  if (!users[req.cookies.user_id]) {
+  if (!users[req.session.user_id]) {
     return res.send(`<h3>You must login first!</h3>`);
   }
-  //console.log(req.body);
   //Capture new longURL from req.body
   const longURL = req.body.longURL;
   //Assign random id to new longURL
   const id = generateRandomString();
   //Add new random id and new longURL
-  urlDatabase[id] = {longURL: longURL, userID: req.cookies.user_id};
+  urlDatabase[id] = {longURL: longURL, userID: req.session.user_id};
   res.redirect(`/urls/${id}`);
 });
 
@@ -163,15 +150,15 @@ app.post("/urls/:id", (req, res) => {
   if (!req.params.id) {
     return res.send(`<h3>ID should exist</h3>`);
   };
-  if (!users[req.cookies.user_id]) {
+  if (!users[req.session.user_id]) {
     return res.send(`<h3>You must login first!</h3>`);
   };
-  if (urlDatabase[req.params.id].userID !== req.cookies.user_id) {
+  if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     return res.send(`<h3>You do not own this URL!</h3>`);
   };
   const shortURL = req.params.id;
   const longURL = req.body.longURL;
-  urlDatabase[shortURL] = {longURL: longURL, userID: req.cookies.user_id}
+  urlDatabase[shortURL] = {longURL: longURL, userID: req.session.user_id}
   res.redirect("/urls");
 });
 
@@ -179,10 +166,10 @@ app.post("/urls/:id/delete", (req, res) => {
   if (!req.params.id) {
     return res.send(`<h3>ID should exist</h3>`);
   };
-  if (!users[req.cookies.user_id]) {
+  if (!users[req.session.user_id]) {
     return res.send(`<h3>You must login first!</h3>`);
   };
-  if (urlDatabase[req.params.id].userID !== req.cookies.user_id) {
+  if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     return res.send(`<h3>You do not own this URL!</h3>`);
   };
   //Capture id from object
@@ -203,17 +190,16 @@ app.post("/login", (req, res) => {
     } 
   //Set cookie named user_id
   //res.cookie(name, value)
-  res.cookie('user_id', currentUser.id);
+  req.session.user_id = currentUser.id;
   res.redirect(`/urls`);
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie('user_id');
+  req.session.user_id = null;
   res.redirect(`/urls`);
 });
 
 app.post("/register", (req, res) => {
-  //console.log(req.body);
   //Generate random user ID
   const user_id = generateRandomString();
   const email = req.body.email;
@@ -233,9 +219,8 @@ app.post("/register", (req, res) => {
     password: password
   };
   //Set userID cookie name & value
-  res.cookie('user_id', user_id );
+  req.session.user_id = user_id;
   //Check if users object appended to
-  //console.log(users);
   res.redirect(`/urls`);
 });
 
