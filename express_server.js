@@ -1,10 +1,13 @@
+//REQUIREMENTS
+
 const express = require("express");
 const cookieSession = require('cookie-session')
-// const cookieParser = require('cookie-parser')
 const { reduce } = require("lodash");
 const bcrypt = require("bcryptjs");
 const app = express();
 const PORT = 8080; // default port 8080
+
+//SETUP & MIDDLEWARES
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
@@ -14,6 +17,7 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
 
+//DATABASE
 
 const urlDatabase = {
   b6UTxQ: {
@@ -39,6 +43,7 @@ const users = {
   },
 };
 
+//HELPER FUNCTIONS
 
 function generateRandomString() {
   let random = Math.random().toString(36).substring(2, 8);
@@ -64,7 +69,7 @@ const urlsForUser = function (urlDatabase, user_id) {
    return newObj;
 }
 
-//GET REQUESTS
+//ROUTES & ENDPOINTS
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -77,6 +82,10 @@ app.get("/urls.json", (req, res) => {
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
+
+//CRUD OPERATIONS
+
+//GET REQUESTS - READ
 
 app.get("/urls", (req, res) => {
   if (!users[req.session.user_id]) {
@@ -131,7 +140,7 @@ app.get("/login", (req, res) => {
   res.render("login", {user: null});
 });
 
-//POST REQUESTS
+//POST REQUESTS - CREATE
 
 app.post("/urls", (req, res) => {
   if (!users[req.session.user_id]) {
@@ -223,6 +232,8 @@ app.post("/register", (req, res) => {
   //Check if users object appended to
   res.redirect(`/urls`);
 });
+
+//LISTENER
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
