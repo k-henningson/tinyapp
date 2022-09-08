@@ -205,7 +205,6 @@ app.post("/register", (req, res) => {
   const user_id = generateRandomString();
   const email = req.body.email;
   const password = bcrypt.hashSync(req.body.password, 10);
-  console.log(password);
   if (email === '' && password === '') {
     return res.status(400).send('No email or password entered');
   };
