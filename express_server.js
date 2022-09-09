@@ -2,9 +2,9 @@
 
 const express = require("express");
 const cookieSession = require('cookie-session');
-const { reduce } = require("lodash");
 const bcrypt = require("bcryptjs");
-const { getUserByEmail } = require("./helpers");
+const { getUserByEmail, generateRandomString, urlsForUser } = require("./helpers");
+const { urlDatabase, users } = require("./database");
 const app = express();
 const PORT = 8080; // default port 8080
 
@@ -18,53 +18,13 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
 
-//DATABASE
-
-const urlDatabase = {
-  b6UTxQ: {
-    longURL: "https://www.tsn.ca",
-    userID: "userRandomID",
-  },
-  i3BoGr: {
-    longURL: "https://www.google.ca",
-    userID: "user2RandomID",
-  },
-};
-
-const users = {
-  userRandomID: {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur",
-  },
-  user2RandomID: {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk",
-  },
-};
-
-//HELPER FUNCTIONS
-
-const generateRandomString = function() {
-  let random = Math.random().toString(36).substring(2, 8);
-  return random;
-};
-
-const urlsForUser = function(urlDatabase, user_id) {
-  let newObj = {};
-  for (let key in urlDatabase) {
-    if (user_id === urlDatabase[key].userID) {
-      newObj[key] = urlDatabase[key];
-    }
-  }
-  return newObj;
-};
-
 //ROUTES & ENDPOINTS
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  if (!users[req.session.user_id]) {
+    return res.redirect("/login");
+  }
+  return res.redirect("/urls");
 });
 
 app.get("/urls.json", (req, res) => {
@@ -197,7 +157,7 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  req.session.user_id = null;
+  req.session = null;
   return res.redirect(`/urls`);
 });
 
@@ -206,7 +166,6 @@ app.post("/register", (req, res) => {
   const user_id = generateRandomString();
   const email = req.body.email;
   const password = bcrypt.hashSync(req.body.password, 10);
-  console.log(email, password);
   if (email === '' || req.body.password === '') {
     return res.status(400).send('No email or password entered');
   }
